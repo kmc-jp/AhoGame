@@ -201,7 +201,9 @@ namespace Ahoge
         {
             pointer.Down();
             nowStageController.Cut();
-            //nowStageController.Result
+            int index = 2 + nowStageController.Result;
+            string result = "結果" + nowStageController.ResultPercent.ToString() + "%\n";
+            textManager.SetText(result + texts[index]);
         }
         
         public enum Phase
