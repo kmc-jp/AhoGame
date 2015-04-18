@@ -33,6 +33,15 @@ namespace Ahoge
 
         public int ResultPercent { get; private set; }
 
+        public bool IsEntering
+        {
+            get
+            {
+                var state = animator.GetCurrentAnimatorStateInfo(0);
+                return state.IsName("Entering");
+            }
+        }
+
         public void Awake()
         {
             animator = this.GetComponentInChildren<Animator>();
@@ -105,7 +114,6 @@ namespace Ahoge
         public void Enter()
         {
             animator.SetBool("Enter", true);
-            animator.SetBool("Entered", true);
         }
 
         public void Exit()
@@ -118,11 +126,15 @@ namespace Ahoge
             var percent = pointer.PositionToPercent();
             int div = (int)(targetTexture.width * percent);
             var objects = PngScr.DivFromTexture2DinResources(Target.GetComponent<SpriteRenderer>(), targetTexture.name, div, true);
+            for (var i = 0; i < objects.Length; i++)
+            {
+                GameObject.Destroy(objects[i], 2);
+            }
             var pixels = PngScr.pngCumulativeSum(targetTexture, true);
             var number = pixels[pixels.Length - 1];
             var cutPercent = Math.Min(number - pixels[div], pixels[div]) * 100f / number;
             ResultPercent = (int)cutPercent;
-            var diff = cutPercent - this.percent;
+            var diff = Math.Abs(cutPercent - this.percent);
             if (diff < 1) Result = 0; else if (diff < 5) Result = 1; else if (diff < 10) Result = 2; else if (diff < 15) Result = 3; else Result = 4;
             var keisu = Math.Exp(Math.Log(2 / 3.0) / 25 * diff * diff);
             ScoreManager.AddScore((int)(10000 * (1 + stageNumber / 10f) * keisu), stageNumber);

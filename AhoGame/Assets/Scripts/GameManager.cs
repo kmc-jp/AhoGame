@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Ahoge
         /// 0がスタート画面、1~11がゲーム画面、12がスコア画面
         /// </summary>
         int nowStageNo = -2;
-        int stagenum = 2;
+        int stagenum = 11;
         Phase phase;
 
         List<GameObject> stagePrefabs;
@@ -73,10 +74,10 @@ namespace Ahoge
 
             if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
             {
+                Debug.Log(nowStageNo);
                 if(nowStageNo == -2)
                 {
                     previousBackGroundImageName = nowBackGroundImageName;
-                    nowBackGroundImageName = "Start";
                     Feed(previousBackGroundImageName, nowBackGroundImageName);
                     textManager.SetText(texts[0]);
                     nowStageNo++;
@@ -84,7 +85,6 @@ namespace Ahoge
                 else if(nowStageNo == -1)
                 {
                     previousBackGroundImageName = nowBackGroundImageName;
-                    nowBackGroundImageName = "BackGroundImage";
                     Feed(previousBackGroundImageName, nowBackGroundImageName);
                     textManager.SetText(texts[1]);
                     nowStageNo++;
@@ -94,7 +94,7 @@ namespace Ahoge
                     StartGame();
                     phase = Phase.Speaking;
                 }
-                else if (0 < nowStageNo || nowStageNo < stagenum + 1)
+                else if (0 < nowStageNo && nowStageNo < stagenum)
                 {
                     switch (phase)
                     {
@@ -105,20 +105,56 @@ namespace Ahoge
                             break;
                         case Phase.Cutting:
                             Cut();                            
-                            phase = Phase.Score;
                             break;
                         case Phase.Score:
+                            result += nowStageController.Result;
                             TransStage(++nowStageNo);
                             break;
                     }
 
                 }
-                else if (nowStageNo == stagenum + 1)
+                else if (nowStageNo == stagenum)
                 {
-
+                    int score = 0;
+                    for (int i = 0; i < 10; i++)
+                    {
+                        score += ScoreManager.Scores[i];
+                    }
+                    if (score > 1000000)
+                    {
+                        TransStage(11);
+                    }
+                    else
+                    {
+                        GotoResult(score);
+                    }
                 }
 
-                Debug.Log(phase);
+                Debug.Log(result);
+            }
+        }
+
+        int result = 0;
+
+        public void GotoResult(int score)
+        {
+            Transform tf = GameObject.Find("/Canvas/ResultPanel").transform;
+            Feed(nowBackGroundImageName, "result");
+            int l = 10;
+            if (score > 1000000) l = 11;
+            for (int i = 0; i < 11; i++)
+            {
+
+                Text t = tf.FindChild("Score" + i).GetComponent<Text>();
+                if (i < 10)
+                {
+                    StageController s = GameObject.Find("Stage" + (i + 1)).GetComponent<StageController>();
+                    
+                }
+                else if (i == 10 && score > 1000000)
+                {
+                }
+                
             }
         }
 
@@ -141,7 +177,7 @@ namespace Ahoge
             nowStageObject = GameObject.Instantiate(stagePrefabs[0], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
             previousBackGroundImageName = nowBackGroundImageName;
-            nowBackGroundImageName = nowStageController.Initialize(setting, stagenum);
+            nowBackGroundImageName = nowStageController.Initialize(setting, nowStageNo);
             textManager.SetText(nowStageController.GetNextText());
             Feed(previousBackGroundImageName, nowBackGroundImageName);
             nowStageNo++;
@@ -154,6 +190,7 @@ namespace Ahoge
         /// <param name="toNo"></param>
         public void TransStage(int toNo)
         {
+            if (toNo > stagenum) return;
             previousStageObject = nowStageObject;
             previousStageController = nowStageController;
             previousBackGroundImageName = nowBackGroundImageName;
@@ -161,7 +198,7 @@ namespace Ahoge
             string setting = Resources.Load<TextAsset>("StageSettings/Stage" + toNo).text;
             nowStageObject = GameObject.Instantiate(stagePrefabs[toNo - 1], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
-            nowBackGroundImageName = nowStageController.Initialize(setting, stagenum);
+            nowBackGroundImageName = nowStageController.Initialize(setting, nowStageNo);
 
             Feed(previousBackGroundImageName, nowBackGroundImageName);
             textManager.SetText(nowStageController.GetNextText());
@@ -196,14 +233,17 @@ namespace Ahoge
             nowStageController.Enter();
         }
 
-
         void Cut()
         {
-            pointer.Down();
-            nowStageController.Cut();
-            int index = 2 + nowStageController.Result;
-            string result = "結果" + nowStageController.ResultPercent.ToString() + "%\n";
-            textManager.SetText(result + texts[index]);
+            if (!nowStageController.IsEntering)
+            {
+                pointer.Down();
+                nowStageController.Cut();
+                int index = 2 + nowStageController.Result;
+                string result = "結果" + nowStageController.ResultPercent.ToString() + "%\n";
+                textManager.SetText(result + texts[index]);
+                phase = Phase.Score;
+            }
         }
         
         public enum Phase

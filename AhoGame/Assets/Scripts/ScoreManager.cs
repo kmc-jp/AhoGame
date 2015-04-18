@@ -20,6 +20,7 @@ namespace Ahoge
 
         public static void AddScore(int score, int stage)
         {
+            Debug.Log("stage : " + stage);
             Scores[stage] = score;
         }
 

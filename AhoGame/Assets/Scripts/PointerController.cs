@@ -38,8 +38,8 @@ namespace Ahoge
             {
                 if (down)
                 {
-                    tf.position -= new Vector3(0, speed * Time.fixedDeltaTime, 0);
-
+                    if (tf.position.y > -5)
+                        tf.position -= new Vector3(0, speed * Time.fixedDeltaTime, 0);
                 }
                 else if (goingRight)
                 {
@@ -60,6 +60,7 @@ namespace Ahoge
             tf.position = new Vector3(tf.position.x , y + sprite.sprite.texture.height / 200f, 0);
             this.beginX = beginX;
             this.endX = endX;
+            down = false;
             Move();
         }
 
