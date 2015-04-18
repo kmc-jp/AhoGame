@@ -22,5 +22,11 @@ namespace Ahoge
         {
             Scores[stage] = score;
         }
+
+        public static bool CanExtra()
+        {
+            int sum = Scores.Sum();
+            return (sum - Scores[Scores.Length - 1] > 100000);
+        }
     }
 }

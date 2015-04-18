@@ -28,6 +28,7 @@ namespace Ahoge
         public void SetText(string text)
         {
             textBox.text = text;
+            print("SetText");
         }
     }
 }

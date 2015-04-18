@@ -39,6 +39,7 @@ namespace Ahoge
                 if (down)
                 {
                     tf.position -= new Vector3(0, speed * Time.fixedDeltaTime, 0);
+
                 }
                 else if (goingRight)
                 {

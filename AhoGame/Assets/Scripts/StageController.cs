@@ -49,7 +49,8 @@ namespace Ahoge
             width = Int32.Parse(settings[1].Split(',')[1]);
             height = Int32.Parse(settings[2].Split(',')[1]);
             showInAdvance = Boolean.Parse(settings[3].Split(',')[1]);
-            percent = Int32.Parse(settings[4].Split(',')[1]);
+            System.Random rand = new System.Random();
+            percent = Int32.Parse(settings[4].Split(',')[1]) + rand.Next(11) - 5;
             textnum = Int32.Parse(settings[6].Split(',')[1]);
             texts = new List<string>();
             for (var i = 0; i < textnum; i++)
@@ -60,6 +61,7 @@ namespace Ahoge
                     t += settings[7 + i * 4 + j];
                     t += "\n";
                 }
+                if (t.Contains("{0}")) t = t.Replace("{0}", percent.ToString());
                 texts.Add(t);
             }
             texts.Add("");

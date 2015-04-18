@@ -129,19 +129,26 @@ namespace Ahoge
                 //Sprite S = go[i].GetComponent<SpriteRenderer>().sprite ;
 
             }
-            var diff = (DivPos + 90) / 2f / ppu;
+            var diff = 30f;//(DivPos + 90) / 2f ;
             if (DivVertical)
             {
-                go[0].transform.position = BaseGo.transform.position - new Vector3(diff, 0, 0);
-                go[1].transform.position = BaseGo.transform.position + new Vector3(diff, 0, 0);
+                //go[0].transform.position = BaseGo.transform.position - new Vector3(diff, 0, 0) / ppu;
+                //go[1].transform.position = BaseGo.transform.position + new Vector3(diff, 0, 0) / ppu;
+                go[0].transform.position = BaseGo.transform.position +
+                        (new Vector3(DivPos / 2 - tx.width / 2 - diff, 0, 0)) / ppu;
+                go[1].transform.position = BaseGo.transform.position +
+                        (new Vector3(DivPos - tx.width / 2 + (tx.width-DivPos ) / 2 + diff, 0, 0)) / ppu;
             }
             else
             {
-                go[0].transform.position = BaseGo.transform.position + new Vector3(0, 0, 0);
-                go[1].transform.position = BaseGo.transform.position + new Vector3(0, diff, 0);
+                //go[0].transform.position = BaseGo.transform.position - new Vector3(0, diff, 0)/ppu;
+                //go[1].transform.position = BaseGo.transform.position + new Vector3(0, diff, 0)/ppu;
+                go[0].transform.position = BaseGo.transform.position +
+                        (new Vector3(0,DivPos / 2 - tx.width / 2 - diff, 0)) / ppu;
+                go[1].transform.position = BaseGo.transform.position +
+                        (new Vector3(0,DivPos - tx.width / 2 + (tx.width - DivPos) / 2 + diff, 0)) / ppu;
             }
-            go[0].GetComponent<SpriteRenderer>().sortingLayerID = 1;
-            go[1].GetComponent<SpriteRenderer>().sortingLayerID = -1;
+            go[0].GetComponent<SpriteRenderer>().sortingLayerName = "UpObject";
 
             return go;
         }
