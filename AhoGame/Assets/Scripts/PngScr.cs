@@ -7,8 +7,15 @@ namespace Ahoge
 {
     public class PngScr
     {
-        //テキストファイルを作成して最終的な累積和を返却します。左上が原点の累積和です。
-        //Sprite.textureでSpriteのTexture2Dにアクセスしても良いです。
+        /// <summary>
+        /// テキストファイルを作成して最終的な累積和を返却します。左上が原点の累積和です。
+        /// Sprite.textureでSpriteのTexture2Dにアクセスしても良いです。
+        /// </summary>
+        /// <param name="tx2D"></param>
+        /// <param name="SaveFileName"></param>
+        /// <param name="ReadVertical"></param>
+        /// <param name="HeaderWithWidthHeight"></param>
+        /// <returns></returns>
         public static int SavepngCumulativeSum(Texture2D tx2D, string SaveFileName, bool ReadVertical = false, bool HeaderWithWidthHeight = false)
         {
             FileStream f = new FileStream(SaveFileName, FileMode.Create, FileAccess.Write);
@@ -22,7 +29,12 @@ namespace Ahoge
             return ASum[ASum.Length - 1];
         }
 
-        //累積和配列を返却します
+        /// <summary>
+        /// 累積和配列を返却します
+        /// </summary>
+        /// <param name="tx2D"></param>
+        /// <param name="ReadVertical"></param>
+        /// <returns></returns>
         public static int[] pngCumulativeSum(Texture2D tx2D, bool ReadVertical = false)
         {
             Color32[] pix = tx2D.GetPixels32();//左下から右に一行ずつ読み込んだ配列
@@ -62,7 +74,11 @@ namespace Ahoge
             return Result;
         }
 
-        //アウトプットしたテキストファイルからint[]の累積和に変換します。
+        /// <summary>
+        /// アウトプットしたテキストファイルからint[]の累積和に変換します。
+        /// </summary>
+        /// <param name="FileName"></param>
+        /// <returns></returns>
         public static int[] CumulativeSumFromFile(string FileName)
         {
             FileStream f = new FileStream(FileName, FileMode.Open, FileAccess.Read);
@@ -76,11 +92,17 @@ namespace Ahoge
             return AL.ToArray();
         }
 
-        //ResourcesにあるTexture2Dのデータからふたつのを作成する。
-        //SpriteからTexture2Dを読み込むと変な挙動を起こす
+        /// <summary>
+        /// ResourcesにあるTexture2Dのデータからふたつのを作成する。
+        /// SpriteからTexture2Dを読み込むと変な挙動を起こす
+        /// </summary>
+        /// <param name="Texture2DName"></param>
+        /// <param name="DivPos"></param>
+        /// <param name="DivVertical"></param>
+        /// <returns></returns>
         public static GameObject[] DivFromTexture2DinResources(string Texture2DName, int DivPos, bool DivVertical = false)
         {
-            Texture2D tx = Resources.Load(Texture2DName) as Texture2D;
+            Texture2D tx = Resources.Load("Images/" + Texture2DName) as Texture2D;
             Sprite sr1, sr2;
 
             if (DivVertical)

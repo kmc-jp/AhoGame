@@ -24,6 +24,13 @@ namespace Ahoge
         {
             camera = GameObject.Find("Camera").transform;
             LoadStages();
+            //var tex = Resources.Load<Texture2D>("Images/code");
+            //var data = PngScr.pngCumulativeSum(tex, true);
+            //for (int i = 0; i < data.Length; i++)
+            //{
+            //    print(data[i]);
+            //}
+            //PngScr.DivFromTexture2DinResources("code", 100, true);
         }
 
         public void LoadStages()
