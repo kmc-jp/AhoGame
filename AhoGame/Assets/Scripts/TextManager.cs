@@ -27,7 +27,22 @@ namespace Ahoge
 
         public void SetText(string text)
         {
+            SetVisible(true);
             textBox.text = text;
+        }
+
+        public void SetVisible(bool b)
+        {
+            Vector2 max;
+            if(b)
+            {
+                max = new Vector2(1, 0.3333f);
+            }
+            else
+            {
+                max = new Vector2(0, 0f);
+            }
+            textBoxPanelRTF.anchorMax = max;
         }
     }
 }

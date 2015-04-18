@@ -12,7 +12,7 @@ namespace Ahoge
         /// <summary>
         /// 0がスタート画面、1~11がゲーム画面、12がスコア画面
         /// </summary>
-        int nowStageNo = 0;
+        int nowStageNo = -2;
         int stagenum = 2;
         Phase phase;
 
@@ -26,15 +26,19 @@ namespace Ahoge
             camera = GameObject.Find("Camera").transform;
             textManager = this.GetComponent<TextManager>();
             LoadStages();
-            GameObject.Find("/BackGround/Start").GetComponent<Animator>().SetBool("In", true);
+            textManager.SetVisible(false);
+            nowBackGroundImageName = "title";
+            texts = new List<string>();
+            string[] ss = Resources.Load<TextAsset>("OtherTexts").text.Split('\n');
+            for (var i = 0; i < ss.Length / 4; i++)
+            {
+                string s = ss[i * 4] + "\n" + ss[i * 4 + 1] + "\n" + ss[i * 4 + 2] + "\n" + ss[i * 4 + 3];
+                texts.Add(s);
+            }
+
             pointer = FindObjectOfType<PointerController>();
-            //var tex = Resources.Load<Texture2D>("Images/code");
-            //var data = PngScr.pngCumulativeSum(tex, true);
-            //for (int i = 0; i < data.Length; i++)
-            //{
-            //    print(data[i]);
-            //}
-            //PngScr.DivFromTexture2DinResources("code", 100, true);
+            
+            Feed(previousBackGroundImageName, nowBackGroundImageName);
         }
 
         public void LoadStages()
@@ -52,13 +56,14 @@ namespace Ahoge
 
         public void Start()
         {
-
         }
 
         public void Update()
         {
             AcceptInput();
         }
+
+        List<string> texts;
 
         /// <summary>
         /// 入力の適用
@@ -68,8 +73,23 @@ namespace Ahoge
 
             if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
             {
-                Debug.Log("!!");
-                if (nowStageNo == 0)
+                if(nowStageNo == -2)
+                {
+                    previousBackGroundImageName = nowBackGroundImageName;
+                    nowBackGroundImageName = "Start";
+                    Feed(previousBackGroundImageName, nowBackGroundImageName);
+                    textManager.SetText(texts[0]);
+                    nowStageNo++;
+                }
+                else if(nowStageNo == -1)
+                {
+                    previousBackGroundImageName = nowBackGroundImageName;
+                    nowBackGroundImageName = "BackGroundImage";
+                    Feed(previousBackGroundImageName, nowBackGroundImageName);
+                    textManager.SetText(texts[1]);
+                    nowStageNo++;
+                }
+                else if (nowStageNo == 0)
                 {
                     StartGame();
                     phase = Phase.Speaking;
@@ -84,7 +104,7 @@ namespace Ahoge
                             else textManager.SetText(s);
                             break;
                         case Phase.Cutting:
-                            Cut();
+                            Cut();                            
                             phase = Phase.Score;
                             break;
                         case Phase.Score:
@@ -97,8 +117,12 @@ namespace Ahoge
                 {
 
                 }
+
+                Debug.Log(phase);
             }
         }
+
+
 
         //前のステージ用のオブジェクトたち
         GameObject previousStageObject;
@@ -112,11 +136,14 @@ namespace Ahoge
 
         public void StartGame()
         {
+            textManager.SetVisible(true);
             string setting = Resources.Load<TextAsset>("StageSettings/Stage1").text;
             nowStageObject = GameObject.Instantiate(stagePrefabs[0], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
+            previousBackGroundImageName = nowBackGroundImageName;
             nowBackGroundImageName = nowStageController.Initialize(setting, stagenum);
-            Feed("Start", nowBackGroundImageName);
+            textManager.SetText(nowStageController.GetNextText());
+            Feed(previousBackGroundImageName, nowBackGroundImageName);
             nowStageNo++;
             ScoreManager.Reset();
         }
@@ -137,7 +164,8 @@ namespace Ahoge
             nowBackGroundImageName = nowStageController.Initialize(setting, stagenum);
 
             Feed(previousBackGroundImageName, nowBackGroundImageName);
-
+            textManager.SetText(nowStageController.GetNextText());
+            phase = Phase.Speaking;
             //Stage○の表示をにゅって感じで出す
         }
 
@@ -149,11 +177,11 @@ namespace Ahoge
         public void Feed(string previous, string now)
         {
             if (previous == now) return;
-            if (!String.IsNullOrEmpty("previous"))
+            if (!String.IsNullOrEmpty(previous))
             {
                 GameObject.Find("/BackGround/" + previous).GetComponent<Animator>().SetBool("Out", true);
             }
-            if (!String.IsNullOrEmpty("now"))
+            if (!String.IsNullOrEmpty(now))
             {
                 GameObject.Find("/BackGround/" + now).GetComponent<Animator>().SetBool("In", true);
             }
@@ -168,13 +196,12 @@ namespace Ahoge
             nowStageController.Enter();
         }
 
+
         void Cut()
         {
             pointer.Down();
             nowStageController.Cut();
-        }
-
-        public enum Phase
+        }        public enum Phase
         {
             Speaking, Cutting, Score
         }
