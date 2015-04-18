@@ -35,7 +35,7 @@ namespace Ahoge
         public string Initialize(string text)
         {
             string[] settings = text.Split('\n');
-            targetName = settings[0].Split(',')[1];
+            targetName = settings[0].Split(',')[1].Replace("\r", "");
             width = Int32.Parse(settings[1].Split(',')[1]);
             height = Int32.Parse(settings[2].Split(',')[1]);
             showInAdvance = Boolean.Parse(settings[3].Split(',')[1]);
@@ -54,7 +54,7 @@ namespace Ahoge
             }
             texts.Add("");
 
-            return settings[5].Split(',')[1];
+            return settings[5].Split(',')[1].Replace("\r", "");
         }
 
         public string GetNextText()

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -23,7 +24,9 @@ namespace Ahoge
         public void Awake()
         {
             camera = GameObject.Find("Camera").transform;
+            textManager = this.GetComponent<TextManager>();
             LoadStages();
+            GameObject.Find("/BackGround/Start").GetComponent<Animator>().SetBool("In", true);
         }
 
         public void LoadStages()
@@ -54,50 +57,34 @@ namespace Ahoge
         /// </summary>
         public void AcceptInput()
         {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                if (nowStageNo == 0)
-                {
 
-                }
-                else if (0 < nowStageNo || nowStageNo < stagenum + 1)
-                {
-
-                }
-                else if (nowStageNo == stagenum + 1)
-                {
-
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-
-            }
-
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
             {
                 Debug.Log("!!");
                 if (nowStageNo == 0)
                 {
                     StartGame();
-                    phase = Phase.Score;
+                    phase = Phase.Speaking;
                 }
-                else if (0 < nowStageNo || nowStageNo < 12)
+                else if (0 < nowStageNo || nowStageNo < stagenum + 1)
                 {
                     switch (phase)
                     {
                         case Phase.Speaking:
+                            string s = nowStageController.GetNextText();
+                            if (s == "") StartCutting();
+                            else textManager.SetText(s);
                             break;
                         case Phase.Cutting:
+                            phase = Phase.Score;
                             break;
                         case Phase.Score:
-                            TransStage(nowStageNo++);
+                            TransStage(++nowStageNo);
                             break;
                     }
 
                 }
-                else if (nowStageNo == 12)
+                else if (nowStageNo == stagenum + 1)
                 {
 
                 }
@@ -117,9 +104,10 @@ namespace Ahoge
         public void StartGame()
         {
             string setting = Resources.Load<TextAsset>("StageSettings/Stage1").text;
-            nowStageObject = stagePrefabs[0];
+            nowStageObject = GameObject.Instantiate(stagePrefabs[0], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
             nowBackGroundImageName = nowStageController.Initialize(setting);
+            Feed("Start", nowBackGroundImageName);
             nowStageNo++;
         }
 
@@ -134,27 +122,39 @@ namespace Ahoge
             previousBackGroundImageName = nowBackGroundImageName;
 
             string setting = Resources.Load<TextAsset>("StageSettings/Stage" + toNo).text;
-            nowStageObject = GameObject.Instantiate<GameObject>(stagePrefabs[toNo - 1]);
+            nowStageObject = GameObject.Instantiate(stagePrefabs[toNo - 1], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
             nowBackGroundImageName = nowStageController.Initialize(setting);
 
-            //フェードイン/アウト
-            if (nowBackGroundImageName != "" && previousBackGroundImageName != null && nowBackGroundImageName != previousBackGroundImageName)
-            {
-                GameObject.Find("/BackGround/" + previousBackGroundImageName).GetComponent<Animator>().SetBool("Out", true);
-                GameObject.Find("/BackGround/" + nowBackGroundImageName).GetComponent<Animator>().SetBool("In", true);
-            }
+            Feed(previousBackGroundImageName, nowBackGroundImageName);
 
             //Stage○の表示をにゅって感じで出す
         }
 
         /// <summary>
+        /// フィードイン・アウト
+        /// </summary>
+        /// <param name="previous"></param>
+        /// <param name="now"></param>
+        public void Feed(string previous, string now)
+        {
+            if (previous == now) return;
+            if (!String.IsNullOrEmpty("previous"))
+            {
+                GameObject.Find("/BackGround/" + previous).GetComponent<Animator>().SetBool("Out", true);
+            }
+            if (!String.IsNullOrEmpty("now"))
+            {
+                GameObject.Find("/BackGround/" + now).GetComponent<Animator>().SetBool("In", true);
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
-        /// <param name="no"></param>
-        public void StartCutting(int no)
+        public void StartCutting()
         {
-
+            phase = Phase.Cutting;
         }
 
         public enum Phase
