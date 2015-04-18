@@ -2,29 +2,32 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class TextManager : MonoBehaviour
+namespace Ahoge
 {
-    RectTransform textBoxPanelRTF;
-    Text textBox;
-
-    public void Awake()
+    public class TextManager : MonoBehaviour
     {
-        Transform canvas = GameObject.Find("/Canvas").transform;
-        textBoxPanelRTF = canvas.FindChild("TextBoxPanel").transform as RectTransform;
-        textBox = textBoxPanelRTF.FindChild("TextBox").GetComponent<Text>();
-    }
+        RectTransform textBoxPanelRTF;
+        Text textBox;
 
-    public void Start()
-    {
+        public void Awake()
+        {
+            Transform canvas = GameObject.Find("/Canvas").transform;
+            textBoxPanelRTF = canvas.FindChild("TextBoxPanel").transform as RectTransform;
+            textBox = textBoxPanelRTF.FindChild("TextBox").GetComponent<Text>();
+        }
 
-    }
+        public void Start()
+        {
 
-    public void Update()
-    {
-    }
+        }
 
-    public void SetText(string text)
-    {
-        textBox.text = text;
+        public void Update()
+        {
+        }
+
+        public void SetText(string text)
+        {
+            textBox.text = text;
+        }
     }
 }
