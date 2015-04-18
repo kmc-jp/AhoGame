@@ -57,6 +57,7 @@ namespace Ahoge
 
         public void Start()
         {
+            GameObject.Find("/Canvas/ResultPanel").GetComponent<RectTransform>().anchorMax = new Vector2(0, 0);
         }
 
         public void Update()
@@ -74,15 +75,14 @@ namespace Ahoge
 
             if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space))
             {
-                Debug.Log(nowStageNo);
-                if(nowStageNo == -2)
+                if (nowStageNo == -2)
                 {
                     previousBackGroundImageName = nowBackGroundImageName;
                     Feed(previousBackGroundImageName, nowBackGroundImageName);
                     textManager.SetText(texts[0]);
                     nowStageNo++;
                 }
-                else if(nowStageNo == -1)
+                else if (nowStageNo == -1)
                 {
                     previousBackGroundImageName = nowBackGroundImageName;
                     Feed(previousBackGroundImageName, nowBackGroundImageName);
@@ -104,11 +104,12 @@ namespace Ahoge
                             else textManager.SetText(s);
                             break;
                         case Phase.Cutting:
-                            Cut();                            
+                            Cut();
                             break;
                         case Phase.Score:
                             result += nowStageController.Result;
-                            TransStage(++nowStageNo);
+                            if (nowStageNo < 10) TransStage(++nowStageNo);
+                            else nowStageNo++;
                             break;
                     }
 
@@ -120,17 +121,35 @@ namespace Ahoge
                     {
                         score += ScoreManager.Scores[i];
                     }
-                    if (score > 1000000)
+                    if (ScoreManager.CanExtra())
                     {
                         TransStage(11);
+                        nowStageNo++;
+                        phase = Phase.Speaking;
                     }
                     else
                     {
                         GotoResult(score);
                     }
                 }
-
-                Debug.Log(result);
+                else if (nowStageNo == stagenum + 1)
+                {
+                    switch (phase)
+                    {
+                        case Phase.Speaking:
+                            string s = nowStageController.GetNextText();
+                            if (s == "") StartCutting();
+                            else textManager.SetText(s);
+                            break;
+                        case Phase.Cutting:
+                            Cut();
+                            break;
+                        case Phase.Score:
+                            result += nowStageController.Result;
+                            GotoResult(1000000);
+                            break;
+                    }
+                }
             }
         }
 
@@ -138,24 +157,37 @@ namespace Ahoge
 
         public void GotoResult(int score)
         {
-            Transform tf = GameObject.Find("/Canvas/ResultPanel").transform;
+            AudioSource source = GameObject.Find("/Camera").GetComponent<AudioSource>();
+            source.clip = Resources.Load<AudioClip>("DevTitle");
+            source.Play();
+            int ssss = 0;
+            textManager.SetVisible(false);
+            RectTransform tf = GameObject.Find("/Canvas/ResultPanel").transform as RectTransform;
+            tf.anchorMax = new Vector2(1, 1);
             Feed(nowBackGroundImageName, "result");
-            int l = 10;
-            if (score > 1000000) l = 11;
-            for (int i = 0; i < 11; i++)
+            if (ScoreManager.CanExtra())
             {
-
-                Text t = tf.FindChild("Score" + i).GetComponent<Text>();
+                Text t = tf.FindChild("Score11").GetComponent<Text>();
+                StageController s = GameObject.Find("Stage11(Clone)").GetComponent<StageController>();
+                t.text = s.targetName + " " + s.ResultPercent + "% /" + s.percent + "%  " + ScoreManager.Scores[10] + "点";
+                ssss += ScoreManager.Scores[10];
+            }
+            else
+            {
+                Text t = tf.FindChild("Score11").GetComponent<Text>();
+                t.text = "";
+            }
+            for (int i = 0; i < 10; i++)
+            {
+                Text t = tf.FindChild("Score" + (i + 1)).GetComponent<Text>();
                 if (i < 10)
                 {
-                    StageController s = GameObject.Find("Stage" + (i + 1)).GetComponent<StageController>();
-                    
+                    StageController s = GameObject.Find("/Stage" + (i + 1) + "(Clone)").GetComponent<StageController>();
+                    t.text = s.targetName + " " + s.ResultPercent + "% /" + s.percent + "%  " + ScoreManager.Scores[i] + "点";
+                    ssss += ScoreManager.Scores[i];
                 }
-                else if (i == 10 && score > 1000000)
-                {
-                }
-                
             }
+            tf.FindChild("AllScore").GetComponent<Text>().text = "得点:" + ssss + "点";
         }
 
 
@@ -172,15 +204,15 @@ namespace Ahoge
 
         public void StartGame()
         {
+            nowStageNo++;
             textManager.SetVisible(true);
             string setting = Resources.Load<TextAsset>("StageSettings/Stage1").text;
             nowStageObject = GameObject.Instantiate(stagePrefabs[0], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
             previousBackGroundImageName = nowBackGroundImageName;
-            nowBackGroundImageName = nowStageController.Initialize(setting, nowStageNo);
+            nowBackGroundImageName = nowStageController.Initialize(setting, nowStageNo - 1);
             textManager.SetText(nowStageController.GetNextText());
             Feed(previousBackGroundImageName, nowBackGroundImageName);
-            nowStageNo++;
             ScoreManager.Reset();
         }
 
@@ -198,7 +230,7 @@ namespace Ahoge
             string setting = Resources.Load<TextAsset>("StageSettings/Stage" + toNo).text;
             nowStageObject = GameObject.Instantiate(stagePrefabs[toNo - 1], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
-            nowBackGroundImageName = nowStageController.Initialize(setting, nowStageNo);
+            nowBackGroundImageName = nowStageController.Initialize(setting, nowStageNo - 1);
 
             Feed(previousBackGroundImageName, nowBackGroundImageName);
             textManager.SetText(nowStageController.GetNextText());
@@ -245,7 +277,25 @@ namespace Ahoge
                 phase = Phase.Score;
             }
         }
-        
+
+        public void GotoStart()
+        {
+            //int l = 10;
+            //if (nowStageNo > 10) l = 11;
+            //for (int i = 0; i < l; i++)
+            //{
+            //    Destroy(GameObject.Find("/Stage" + (i + 1) + "(Clone)"));
+            //}
+            //nowStageNo = 0;
+            //phase = Phase.Speaking;
+            //(GameObject.Find("/Canvas/ResultPanel").transform as RectTransform).anchorMax = new Vector2(0, 0);
+            //previousBackGroundImageName = nowBackGroundImageName;
+            //nowBackGroundImageName = 
+            //StartGame();
+
+            Application.ExternalEval("location.reload();");
+        }
+
         public enum Phase
         {
             Speaking, Cutting, Score

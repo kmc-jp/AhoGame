@@ -29,7 +29,6 @@ namespace Ahoge
         {
             SetVisible(true);
             textBox.text = text;
-            print("SetText");
         }
 
         public void SetVisible(bool b)

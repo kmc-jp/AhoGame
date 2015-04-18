@@ -20,14 +20,14 @@ namespace Ahoge
 
         public static void AddScore(int score, int stage)
         {
-            Debug.Log("stage : " + stage);
             Scores[stage] = score;
+            Debug.Log("Stage:" + stage + ", Score:" + Scores[stage]);
         }
 
         public static bool CanExtra()
         {
             int sum = Scores.Sum();
-            return (sum - Scores[Scores.Length - 1] > 100000);
+            return (sum - Scores[Scores.Length - 1] > 90000);
         }
     }
 }

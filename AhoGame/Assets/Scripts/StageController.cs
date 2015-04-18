@@ -15,11 +15,11 @@ namespace Ahoge
 
         PointerController pointer;
 
-        string targetName;
+        public string targetName;
         int width;
         int height;
         bool showInAdvance;
-        int percent;
+        public int percent;
         int textnum;
         List<string> texts;
 
@@ -63,7 +63,7 @@ namespace Ahoge
             height = Int32.Parse(settings[2].Split(',')[1]);
             showInAdvance = Boolean.Parse(settings[3].Split(',')[1]);
             System.Random rand = new System.Random();
-            percent = Int32.Parse(settings[4].Split(',')[1]) + rand.Next(11) - 5;
+            percent = Int32.Parse(settings[4].Split(',')[1]) + rand.Next(3) - 5;
             textnum = Int32.Parse(settings[6].Split(',')[1]);
             texts = new List<string>();
             for (var i = 0; i < textnum; i++)
@@ -106,7 +106,6 @@ namespace Ahoge
                     float diff = targetTexture.width / 200f;
                     pointer.Setup(this, tf.position.y + targetTexture.height / 200f, centerX - diff, centerX + diff);
                     entered = true;
-                    print("Entered");
                 }
             }
         }
@@ -123,6 +122,7 @@ namespace Ahoge
 
         public void Cut()
         {
+            //割合
             var percent = pointer.PositionToPercent();
             int div = (int)(targetTexture.width * percent);
             var objects = PngScr.DivFromTexture2DinResources(Target.GetComponent<SpriteRenderer>(), targetTexture.name, div, true);
@@ -132,12 +132,14 @@ namespace Ahoge
             }
             var pixels = PngScr.pngCumulativeSum(targetTexture, true);
             var number = pixels[pixels.Length - 1];
-            var cutPercent = Math.Min(number - pixels[div], pixels[div]) * 100f / number;
+            var cutPercent = Math.Min(number - pixels[div], pixels[div]) / (double)number * 100f;
             ResultPercent = (int)cutPercent;
+            
             var diff = Math.Abs(cutPercent - this.percent);
             if (diff < 1) Result = 0; else if (diff < 5) Result = 1; else if (diff < 10) Result = 2; else if (diff < 15) Result = 3; else Result = 4;
-            var keisu = Math.Exp(Math.Log(2 / 3.0) / 25 * diff * diff);
-            ScoreManager.AddScore((int)(10000 * (1 + stageNumber / 10f) * keisu), stageNumber);
+            double keisu = Math.Exp(Math.Log(2.0 / 3.0) / 25.0 * diff * diff);
+            double sc = 10000f * (1f + ((float)stageNumber / 10f)) * keisu;
+            ScoreManager.AddScore((int)sc, stageNumber);
             Destroy(Target);
         }
 
