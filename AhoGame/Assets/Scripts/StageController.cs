@@ -8,9 +8,12 @@ namespace Ahoge
     public class StageController : MonoBehaviour
     {
         public GameObject Target;
+        Texture2D targetTexture;
         public int BeginX;
         public int EndX;
         Animator animator;
+
+        PointerController pointer;
 
         string targetName;
         int width;
@@ -22,9 +25,14 @@ namespace Ahoge
 
         int nowText = -1;
 
+        bool entered = false;
+
         public void Awake()
         {
-            animator = this.GetComponent<Animator>();
+            animator = this.GetComponentInChildren<Animator>();
+            Target = transform.GetChild(0).gameObject;
+            targetTexture = Target.GetComponent<SpriteRenderer>().sprite.texture;
+            pointer = FindObjectOfType<PointerController>();
         }
 
         /// <summary>
@@ -70,6 +78,19 @@ namespace Ahoge
 
         public void Update()
         {
+            if (!entered)
+            {
+                var state = animator.GetCurrentAnimatorStateInfo(0);
+                if (state.IsName("Entered"))
+                {
+                    var tf = Target.transform;
+                    float centerX = tf.position.x;
+                    float diff = targetTexture.width / 200f;
+                    pointer.Setup(this, tf.position.y + targetTexture.height / 200f, centerX - diff, centerX + diff);
+                    entered = true;
+                    print("Entered");
+                }
+            }
         }
 
         public void Enter()
@@ -81,6 +102,13 @@ namespace Ahoge
         public void Exit()
         {
             animator.SetBool("Exit", true);
+        }
+
+        public void Cut()
+        {
+            var percent = pointer.PositionToPercent();
+            var objects = PngScr.DivFromTexture2DinResources(Target.GetComponent<SpriteRenderer>(), targetTexture.name, (int)(targetTexture.width * percent), true);
+            Destroy(Target);
         }
 
         public Rect GetImageRect()

@@ -27,6 +27,7 @@ namespace Ahoge
             textManager = this.GetComponent<TextManager>();
             LoadStages();
             GameObject.Find("/BackGround/Start").GetComponent<Animator>().SetBool("In", true);
+            pointer = FindObjectOfType<PointerController>();
             //var tex = Resources.Load<Texture2D>("Images/code");
             //var data = PngScr.pngCumulativeSum(tex, true);
             //for (int i = 0; i < data.Length; i++)
@@ -83,6 +84,7 @@ namespace Ahoge
                             else textManager.SetText(s);
                             break;
                         case Phase.Cutting:
+                            Cut();
                             phase = Phase.Score;
                             break;
                         case Phase.Score:
@@ -162,6 +164,13 @@ namespace Ahoge
         public void StartCutting()
         {
             phase = Phase.Cutting;
+            nowStageController.Enter();
+        }
+
+        void Cut()
+        {
+            pointer.Down();
+            nowStageController.Cut();
         }
 
         public enum Phase

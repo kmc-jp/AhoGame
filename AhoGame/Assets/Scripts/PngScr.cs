@@ -100,33 +100,50 @@ namespace Ahoge
         /// <param name="DivPos"></param>
         /// <param name="DivVertical"></param>
         /// <returns></returns>
-        public static GameObject[] DivFromTexture2DinResources(string Texture2DName, int DivPos, bool DivVertical = false)
+        public static GameObject[] DivFromTexture2DinResources(SpriteRenderer BaseSRR, string Texture2DName, int DivPos, bool DivVertical = false)
         {
             Texture2D tx = Resources.Load("Images/" + Texture2DName) as Texture2D;
-            Sprite sr1, sr2;
-
+            Sprite[] sr = new Sprite[2];
             if (DivVertical)
             {
                 if (DivPos < 0 || DivPos > tx.width) { Debug.Log("Divpos error"); return null; }
-                sr1 = Sprite.Create(tx, new Rect(0, 0, DivPos, tx.height), new Vector2(0.5f, 0.5f));
-                sr2 = Sprite.Create(tx, new Rect(DivPos, 0, tx.width - DivPos, tx.height), new Vector2(0.5f, 0.5f));
+                sr[0] = Sprite.Create(tx, new Rect(0, 0, DivPos, tx.height), new Vector2(0.5f, 0.5f));
+                sr[1] = Sprite.Create(tx, new Rect(DivPos, 0, tx.width - DivPos, tx.height), new Vector2(0.5f, 0.5f));
 
             }
             else
             {
                 if (DivPos < 0 || DivPos > tx.height) { Debug.Log("Divpos error"); return null; }
-                sr1 = Sprite.Create(tx, new Rect(0, 0, tx.width, DivPos), new Vector2(0.5f, 0.5f));
-                sr2 = Sprite.Create(tx, new Rect(0, DivPos, tx.width, tx.height - DivPos), new Vector2(0.5f, 0.5f));
+                sr[0] = Sprite.Create(tx, new Rect(0, 0, tx.width, DivPos), new Vector2(0.5f, 0.5f));
+                sr[1] = Sprite.Create(tx, new Rect(0, DivPos, tx.width, tx.height - DivPos), new Vector2(0.5f, 0.5f));
             }
-            GameObject go1 = new GameObject(); GameObject go2 = new GameObject();
-            go1.name = Texture2DName + "1"; go2.name = Texture2DName + "2";
-            go1.AddComponent<SpriteRenderer>().sprite = sr1;
-            go2.AddComponent<SpriteRenderer>().sprite = sr2;
+            GameObject[] go = new GameObject[2];
+            Sprite BaseSprite = BaseSRR.sprite;
+            GameObject BaseGo = BaseSRR.gameObject;
+            float ppu = BaseSprite.pixelsPerUnit;
+            for (int i = 0; i < 2; i++)
+            {
+                go[i] = new GameObject();
+                go[i].name = Texture2DName + i;
+                go[i].AddComponent<SpriteRenderer>().sprite = sr[i];
+                //Sprite S = go[i].GetComponent<SpriteRenderer>().sprite ;
 
-            GameObject[] resultgo = new GameObject[2];
-            resultgo[0] = go1; resultgo[1] = go2;
-            return resultgo;
+            }
+            var diff = (DivPos + 90) / 2f / ppu;
+            if (DivVertical)
+            {
+                go[0].transform.position = BaseGo.transform.position - new Vector3(diff, 0, 0);
+                go[1].transform.position = BaseGo.transform.position + new Vector3(diff, 0, 0);
+            }
+            else
+            {
+                go[0].transform.position = BaseGo.transform.position + new Vector3(0, 0, 0);
+                go[1].transform.position = BaseGo.transform.position + new Vector3(0, diff, 0);
+            }
+            go[0].GetComponent<SpriteRenderer>().sortingLayerID = 1;
+            go[1].GetComponent<SpriteRenderer>().sortingLayerID = -1;
 
+            return go;
         }
     }
 }
