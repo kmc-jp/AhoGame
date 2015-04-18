@@ -201,7 +201,10 @@ namespace Ahoge
         {
             pointer.Down();
             nowStageController.Cut();
-        }        public enum Phase
+            //nowStageController.Result
+        }
+        
+        public enum Phase
         {
             Speaking, Cutting, Score
         }

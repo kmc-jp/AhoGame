@@ -29,6 +29,8 @@ namespace Ahoge
 
         int stageNumber;
 
+        public int Result { get; private set; }
+
         public void Awake()
         {
             animator = this.GetComponentInChildren<Animator>();
@@ -118,6 +120,7 @@ namespace Ahoge
             var number = pixels[pixels.Length - 1];
             var cutPercent = Math.Min(number - pixels[div], pixels[div]) * 100f / number;
             var diff = cutPercent - this.percent;
+            if (diff < 1) Result = 0; else if (diff < 5) Result = 1; else if (diff < 10) Result = 2; else if (diff < 15) Result = 3; else Result = 4;
             var keisu = Math.Exp(Math.Log(2 / 3.0) / 25 * diff * diff);
             ScoreManager.AddScore((int)(10000 * (1 + stageNumber / 10f) * keisu), stageNumber);
             Destroy(Target);
