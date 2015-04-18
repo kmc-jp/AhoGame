@@ -27,6 +27,8 @@ namespace Ahoge
 
         bool entered = false;
 
+        int stageNumber;
+
         public void Awake()
         {
             animator = this.GetComponentInChildren<Animator>();
@@ -40,7 +42,7 @@ namespace Ahoge
         /// </summary>
         /// <param name="text"></param>
         /// <returns>Stageの背景画像ファイルの名前</returns>
-        public string Initialize(string text)
+        public string Initialize(string text, int stageNumber)
         {
             string[] settings = text.Split('\n');
             targetName = settings[0].Split(',')[1].Replace("\r", "");
@@ -61,6 +63,7 @@ namespace Ahoge
                 texts.Add(t);
             }
             texts.Add("");
+            this.stageNumber = stageNumber;
 
             return settings[5].Split(',')[1].Replace("\r", "");
         }
@@ -107,7 +110,14 @@ namespace Ahoge
         public void Cut()
         {
             var percent = pointer.PositionToPercent();
-            var objects = PngScr.DivFromTexture2DinResources(Target.GetComponent<SpriteRenderer>(), targetTexture.name, (int)(targetTexture.width * percent), true);
+            int div = (int)(targetTexture.width * percent);
+            var objects = PngScr.DivFromTexture2DinResources(Target.GetComponent<SpriteRenderer>(), targetTexture.name, div, true);
+            var pixels = PngScr.pngCumulativeSum(targetTexture, true);
+            var number = pixels[pixels.Length - 1];
+            var cutPercent = Math.Min(number - pixels[div], pixels[div]) * 100f / number;
+            var diff = cutPercent - this.percent;
+            var keisu = Math.Exp(Math.Log(2 / 3.0) / 25 * diff * diff);
+            ScoreManager.AddScore((int)(10000 * (1 + stageNumber / 10f) * keisu), stageNumber);
             Destroy(Target);
         }
 

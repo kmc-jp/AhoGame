@@ -115,9 +115,10 @@ namespace Ahoge
             string setting = Resources.Load<TextAsset>("StageSettings/Stage1").text;
             nowStageObject = GameObject.Instantiate(stagePrefabs[0], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
-            nowBackGroundImageName = nowStageController.Initialize(setting);
+            nowBackGroundImageName = nowStageController.Initialize(setting, stagenum);
             Feed("Start", nowBackGroundImageName);
             nowStageNo++;
+            ScoreManager.Reset();
         }
 
         /// <summary>
@@ -133,7 +134,7 @@ namespace Ahoge
             string setting = Resources.Load<TextAsset>("StageSettings/Stage" + toNo).text;
             nowStageObject = GameObject.Instantiate(stagePrefabs[toNo - 1], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
             nowStageController = nowStageObject.GetComponent<StageController>();
-            nowBackGroundImageName = nowStageController.Initialize(setting);
+            nowBackGroundImageName = nowStageController.Initialize(setting, stagenum);
 
             Feed(previousBackGroundImageName, nowBackGroundImageName);
 
