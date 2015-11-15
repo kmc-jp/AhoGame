@@ -107,6 +107,8 @@ namespace Ahoge
             if (DivVertical)
             {
                 if (DivPos < 0 || DivPos > tx.width) { Debug.Log("Divpos error"); return null; }
+                DivPos = DivPos == 0 ? 1 : DivPos;
+                DivPos = DivPos == tx.width ? tx.width - 1 : DivPos;
                 sr[0] = Sprite.Create(tx, new Rect(0, 0, DivPos, tx.height), new Vector2(0.5f, 0.5f));
                 sr[1] = Sprite.Create(tx, new Rect(DivPos, 0, tx.width - DivPos, tx.height), new Vector2(0.5f, 0.5f));
 
@@ -114,6 +116,8 @@ namespace Ahoge
             else
             {
                 if (DivPos < 0 || DivPos > tx.height) { Debug.Log("Divpos error"); return null; }
+                DivPos = DivPos == 0 ? 1 : DivPos;
+                DivPos = DivPos == tx.height ? tx.height - 1 : DivPos;
                 sr[0] = Sprite.Create(tx, new Rect(0, 0, tx.width, DivPos), new Vector2(0.5f, 0.5f));
                 sr[1] = Sprite.Create(tx, new Rect(0, DivPos, tx.width, tx.height - DivPos), new Vector2(0.5f, 0.5f));
             }

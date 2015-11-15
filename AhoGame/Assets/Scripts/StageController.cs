@@ -126,9 +126,13 @@ namespace Ahoge
             var percent = pointer.PositionToPercent();
             int div = (int)(targetTexture.width * percent);
             var objects = PngScr.DivFromTexture2DinResources(Target.GetComponent<SpriteRenderer>(), targetTexture.name, div, true);
-            for (var i = 0; i < objects.Length; i++)
+            if (!(objects == null || objects.Length == 0))
             {
-                GameObject.Destroy(objects[i], 2);
+                for (var i = 0; i < objects.Length; i++)
+                {
+                    if (objects[i] == null) continue;
+                    GameObject.Destroy(objects[i], 2);
+                }
             }
             var pixels = PngScr.pngCumulativeSum(targetTexture, true);
             var number = pixels[pixels.Length - 1];

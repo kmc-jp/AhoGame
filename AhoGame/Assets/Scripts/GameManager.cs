@@ -155,8 +155,11 @@ namespace Ahoge
 
         int result = 0;
 
+        bool b = false;
         public void GotoResult(int score)
         {
+            if (b) return;
+            b = true;
             AudioSource source = GameObject.Find("/Camera").GetComponent<AudioSource>();
             source.clip = Resources.Load<AudioClip>("DevTitle");
             source.Play();
@@ -175,7 +178,7 @@ namespace Ahoge
             else
             {
                 Text t = tf.FindChild("Score11").GetComponent<Text>();
-                t.text = "";
+                t.text = "??? 0% / ?%  0点";
             }
             for (int i = 0; i < 10; i++)
             {
@@ -293,7 +296,8 @@ namespace Ahoge
             //nowBackGroundImageName = 
             //StartGame();
 
-            Application.ExternalEval("location.reload();");
+            //Application.ExternalEval("location.reload();");
+            Application.LoadLevel("Start");
         }
 
         public enum Phase
