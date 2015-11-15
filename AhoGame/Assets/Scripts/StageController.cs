@@ -88,17 +88,13 @@ namespace Ahoge
             nowText++;
             return texts[nowText];
         }
-
-        public void Start()
-        {
-
-        }
-
-        public void Update()
+		
+		public void Update()
         {
             if (!entered)
             {
-                var state = animator.GetCurrentAnimatorStateInfo(0);
+				if (animator == null) return;
+				var state = animator.GetCurrentAnimatorStateInfo(0);
                 if (state.IsName("Entered"))
                 {
                     var tf = Target.transform;
@@ -110,13 +106,11 @@ namespace Ahoge
             }
         }
 
-        public void Enter()
-        {
+        public void Enter(){
             animator.SetBool("Enter", true);
         }
 
-        public void Exit()
-        {
+        public void Exit(){
             animator.SetBool("Exit", true);
         }
 
@@ -147,14 +141,11 @@ namespace Ahoge
             Destroy(Target);
         }
 
-        public Rect GetImageRect()
-        {
-
+        public Rect GetImageRect(){
             return new Rect();
         }
 
-        public enum CutType
-        {
+        public enum CutType{
             Vertical, Horizontal
         }
     }

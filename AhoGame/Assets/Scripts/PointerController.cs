@@ -3,12 +3,9 @@ using System.Collections;
 
 namespace Ahoge
 {
-    public class PointerController : MonoBehaviour
-    {
+    public class PointerController : MonoBehaviour{
         Transform tf;
-
         SpriteRenderer sprite;
-
         StageController stage;
 
         public float speed;
@@ -19,16 +16,10 @@ namespace Ahoge
         bool moving = false;
         bool down = false;
 
-        public void Awake()
-        {
+        public void Awake(){
             tf = this.transform;
             sprite = this.GetComponent<SpriteRenderer>();
             sprite.enabled = false;
-        }
-
-        public void Start()
-        {
-
         }
 
         public void Update()
